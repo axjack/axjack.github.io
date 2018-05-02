@@ -1,0 +1,72 @@
+---
+title: "川越市(2018.1.1時点)での人口分布を描画する"
+author: "axjack"
+date: "2018/5/2"
+output: 
+  html_document:  
+    toc: true  
+    number_section: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 前処理
+## 使用するライブラリ
+```{r lib}
+library("readr"); #read_csv()を使うため
+library("ggplot2"); #ggplot()を使うため
+```
+
+## ファイルの所在
+以下のページよりCSVを保存する（と、utf82.csvというファイル名でダウンロードできる)
+
+ - [【川越市】住民基本台帳人口　平成30年1月1日現在](https://opendata.pref.saitama.lg.jp/data/dataset/kawa-jinko30-1-1/resource/d906ce04-35bd-4059-976f-137110125bd1)
+
+## ファイルを読み込み
+```{r}
+kwge <- read_csv("utf82.csv");
+```
+
+## ファイルを確認
+```{r}
+head(kwge);
+tail(kwge);
+```
+
+ファイルを確認すると、
+
+- 1   行目が0才
+- 101 行目が100才以上
+- 102 行目は合計
+
+となっている。
+
+今回は、101行目と102行目を除外してデータフレームを作成する。
+
+
+## データフレームを作成
+```{r}
+kwge.df <- data.frame(pop=kwge$人口[1:100],m=kwge$男[1:100], f=kwge$女[1:100],age=0:99);
+```
+
+# データフレームを確認
+```{r}
+str(kwge.df);
+head(kwge.df);
+tail(kwge.df);
+summary(kwge.df);
+```
+
+
+# 人口分布を描画する
+x軸を年齢、y軸を男女合計の人口でグラフを作成。
+
+```{r}
+g1 <- ggplot(kwge.df, aes(x=age,y=pop));
+g1 <- g1 + geom_line(alpha=0.5);
+g1 <- g1 + geom_point(size=1);
+g1;
+```
+
