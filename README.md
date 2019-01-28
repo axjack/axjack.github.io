@@ -3,7 +3,7 @@
 ## Accounts
  | key | value |
  |---- |----|
- | mail | axjack[@]gmail.com
+ | mail | axjack[at]gmail.com |
  | twitter | @axjack_ |
  
 ## Links
