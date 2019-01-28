@@ -1,0 +1,127 @@
+---
+title: '11915'
+author: "axjack"
+date: "2019/1/28"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# データ読込
+## データの出典
+【ダウンロード】『ビジネス活用事例で学ぶ データサイエンス入門』事例用データとRのソースコード(URL: https://www.sbcr.jp/support/11915.html )より「section4-user_info.csv」を利用します。
+
+
+## 読込処理
+ローカルに落とし適当なフォルダにファイルを配置してから読み込みます。
+```{r}
+userinfo <- read.csv(file="dat/section4-user_info.csv",stringsAsFactors = F)
+```
+
+# データ構造確認
+読込初期時の構造を確認しておく。
+```{r}
+dim(userinfo)
+str(userinfo)
+```
+
+
+## install_dateの確認
+要素の長さをチェックする。もし長さの種類が１種類であれば、年月日の分割は容易となるため。
+
+```{r}
+table( nchar( userinfo$install_date ) )
+```
+
+
+長さの種類は１種類で、全ての要素は10桁で構成されている。つまり、全て「yyyy-mm-dd」の形式であると思われる。続いて、年月日がどのように格納されているか、`table`関数で確認する。
+```{R}
+table( substr( userinfo$install_date, 1,4 ) ) #年の部分
+table( substr( userinfo$install_date, 6,7 ) ) #月の部分
+table( substr( userinfo$install_date, 9,10 ) ) #日の部分
+```
+
+年月日を分割して格納しておく。
+```{r}
+userinfo$dYear <- as.integer( substr( userinfo$install_date, 1,4 ) )
+userinfo$dMonth <- as.integer( substr( userinfo$install_date, 6,7 ) )
+userinfo$dDay <- as.integer( substr( userinfo$install_date, 9,10 ) )
+```
+
+ここまでのデータ構造の確認。
+```{r}
+str(userinfo)
+```
+
+## app_nameの確認
+app_nameは何種類あるのかを確認する。
+```{r}
+table( userinfo$app_name )
+```
+どうやら「game-01」のみである。これはこのままにしておこう。
+
+## user_idの確認
+intなので数字が重複しているか、などを確認。
+```{r}
+hist(userinfo$user_id)
+```
+
+見事に真っ平らなヒストグラム。通番な感じですかね？もし通番なら、`1:dim(userinfo)[c(1)]`との差が0になるはずなので、一応確認。
+
+```{r}
+table( userinfo$user_id - 1:dim(userinfo)[c(1)] )
+```
+全て0となった。
+
+## generationの確認
+世代はintというよりはfactorではないかと思う。まずはどんな世代がいるのか確認。
+```{r}
+table(userinfo$generation)
+```
+10代から50代といったところでしょう。ではこれを、factorに変換する。
+
+```{r}
+userinfo$generation <- factor(userinfo$generation,levels=c("10","20","30","40","50"))
+```
+
+
+## genderとdevice_typeの確認。
+```{r}
+userinfo$gender <- factor(userinfo$gender)
+userinfo$device_type <- factor(userinfo$device_type)
+```
+
+ここまでのデータ構造の確認
+```{r}
+str(userinfo)
+```
+
+# データ分析
+```{r}
+round( prop.table( table(userinfo[,c("gender","device_type") ]) ), digits=2)
+```
+
+
+```{r}
+round( prop.table( table(userinfo[,c("gender", "generation") ]) ), digits=2)
+```
+
+```{r}
+round( prop.table( table(userinfo[,c("gender", "dMonth")] ) ), digits=2)
+```
+
+```{r}
+round( prop.table( table(userinfo[,c("generation","dMonth")] ) ), digits=2)
+```
+
+```{r}
+round( prop.table( table(userinfo[,c("gender","dMonth") ]) ), digits=2)
+```
+
+```{r}
+round( prop.table( table(userinfo[,c("device_type","dMonth") ]) ), digits=2)
+```
